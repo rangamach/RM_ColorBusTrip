@@ -1,15 +1,12 @@
-using NUnit.Framework;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class GameService : MonoBehaviour
 {
     private GameplayService gameplayService;
 
-    [SerializeField] private PlayerView RedTruck;
-    [SerializeField] private PlayerView YellowTruck;
-    [SerializeField] private PlayerView BlueTruck;
-    [SerializeField] private GameplayView View;
+    [SerializeField] private TruckView RedTruck;
+    [SerializeField] private TruckView YellowTruck;
+    [SerializeField] private TruckView BlueTruck;
 
     [SerializeField] private GameplaySO SO;
 

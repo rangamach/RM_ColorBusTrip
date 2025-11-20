@@ -6,4 +6,5 @@ public class GameplaySO : ScriptableObject
 {
     public GameplayView View;
     public List<Vector3> Positions = new List<Vector3>();
+    public Vector3 FinalPosition;
 }

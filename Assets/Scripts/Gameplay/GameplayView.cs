@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.AI;
 using UnityEngine.InputSystem;
 
 public class GameplayView : MonoBehaviour
@@ -27,47 +26,55 @@ public class GameplayView : MonoBehaviour
     private void OnClickPerformed(InputAction.CallbackContext ctx)
     {
         Vector2 pos = GetPointerPosition();
-        CarClick(pos);
+        HandleTruckClick(pos);
     }
 
     private Vector2 GetPointerPosition()
     {
-        // Mouse first (PC/Laptop)
-        if (Mouse.current != null)
-            return Mouse.current.position.ReadValue();
-
-        // Touchscreen (Android/iOS)
+        if (Mouse.current != null) return Mouse.current.position.ReadValue();
         if (Touchscreen.current != null)
         {
             var touch = Touchscreen.current.primaryTouch;
             return touch.position.ReadValue();
         }
-
         return Vector2.zero;
     }
 
-    private void CarClick(Vector2 pos)
+    private void HandleTruckClick(Vector2 pos)
     {
         Ray ray = Camera.main.ScreenPointToRay(pos);
-
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
-            PlayerView player = hit.collider.GetComponent<PlayerView>();
-            if (player != null)
+            TruckView truck = hit.collider.GetComponent<TruckView>();
+            if (truck == null)
             {
-                Debug.Log("Clicked on " + hit.collider.name);
-                if(player.CanMoveForward() && !player.agent.hasPath)
-                {
-                    Vector3 destination = gameplayController.GetDestination(player.posIndex);
-                    player.posIndex++;
-                    player.agent.SetDestination(destination);
-                }
+                Debug.Log("Clicked non-truck object");
+                return;
             }
-            else
-                Debug.Log("Clicked on no truck.");
+
+            if (truck.agent == null)
+            {
+                //Debug.LogError("Truck NavMeshAgent missing: " + truck.name);
+                return;
+            }
+
+            if (gameplayController == null)
+            {
+                Debug.LogError("GameplayController missing");
+                return;
+            }
+
+            if (truck.CanMoveForward() && !truck.agent.hasPath)
+            {
+                Vector3 destination = gameplayController.GetDestination(truck.posIndex);
+                truck.posIndex++;
+                truck.agent.SetDestination(destination);
+            }
         }
     }
 
     public void SetController(GameplayController controller)
-        => this.gameplayController = controller;
+    {
+        gameplayController = controller;
+    }
 }

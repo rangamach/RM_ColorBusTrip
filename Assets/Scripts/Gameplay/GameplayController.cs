@@ -6,11 +6,11 @@ public class GameplayController
     private GameplayView view;
     private List<Vector3> Positions;
 
-    private PlayerView Red;
-    private PlayerView Yellow;
-    private PlayerView Blue;
+    private TruckView Red;
+    private TruckView Yellow;
+    private TruckView Blue;
 
-    public GameplayController(GameplayView view, PlayerView red, PlayerView yellow, PlayerView blue, List<Vector3> positions)
+    public GameplayController(GameplayView view, TruckView red, TruckView yellow, TruckView blue, List<Vector3> positions)
     {
         this.Red = red;
         this.Yellow = yellow;
