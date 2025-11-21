@@ -574,13 +574,18 @@ MonoBehaviour:
   - SeatTransform: {fileID: 4254465825838566033}
     CharacterView: {fileID: 1869161084772517678, guid: 1f51a128bae592649968c781a57e8aec, type: 3}
   color: 2
+  SO: {fileID: 11400000, guid: 08b035a844417c747ad0c11410551b09, type: 2}
   checkDistance: 2
-  sphereRadius: 0
   forwardOffset: 2.75
   upOffset: 1
   truckLayer:
     serializedVersion: 2
     m_Bits: 64
+  finalLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  barrier: {fileID: 0}
+  fullyCorrect: 0
   posIndex: 0
 --- !u!1 &6939755457032417801
 GameObject:

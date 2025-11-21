@@ -51,24 +51,12 @@ public class GameplayView : MonoBehaviour
                 Debug.Log("Clicked non-truck object");
                 return;
             }
-
-            if (truck.agent == null)
+            else
             {
-                //Debug.LogError("Truck NavMeshAgent missing: " + truck.name);
-                return;
-            }
-
-            if (gameplayController == null)
-            {
-                Debug.LogError("GameplayController missing");
-                return;
-            }
-
-            if (truck.CanMoveForward() && !truck.agent.hasPath)
-            {
-                Vector3 destination = gameplayController.GetDestination(truck.posIndex);
-                truck.posIndex++;
-                truck.agent.SetDestination(destination);
+                if (truck.posIndex == 0)
+                {
+                    truck.SetNextDestination();
+                }
             }
         }
     }

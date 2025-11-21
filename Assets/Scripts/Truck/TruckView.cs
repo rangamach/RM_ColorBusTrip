@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -13,12 +14,18 @@ public class TruckView : MonoBehaviour
 {
     [SerializeField] public SeatSlot[] Seats = new SeatSlot[16];
     [SerializeField] private Colors color;
+    [SerializeField] private GameplaySO SO;
 
     [SerializeField] private float checkDistance;
-    [SerializeField] private float sphereRadius;
     [SerializeField] private float forwardOffset;
     [SerializeField] private float upOffset;
     [SerializeField] private LayerMask truckLayer;
+    [SerializeField] private LayerMask finalLayer;
+    [SerializeField] private Transform barrier;
+    //[SerializeField] public AudioSource fullyCorrectAudio;
+    private bool hasFinalDestination;
+    public bool fullyCorrect;
+    
 
     [HideInInspector]
     public NavMeshAgent agent { get; private set; }
@@ -27,7 +34,10 @@ public class TruckView : MonoBehaviour
 
     void Start()
     {
+        fullyCorrect = false;
+        hasFinalDestination = false;
         posIndex = 0;
+        barrier = null;
         agent = GetComponent<NavMeshAgent>();
 
         PopulateAtStart();
@@ -35,8 +45,8 @@ public class TruckView : MonoBehaviour
     private void Update()
     {
         AvoidOtherTrucks();
+        ReachedFinalDestination();
     }
-
     public bool CanMoveForward()
     {
         Vector3 origin = transform.position + transform.forward * forwardOffset + Vector3.up * upOffset;
@@ -56,6 +66,41 @@ public class TruckView : MonoBehaviour
             }
         }
         return true;
+    }
+    private void ReachedFinalDestination()
+    {
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position + transform.forward * forwardOffset + Vector3.up * upOffset, transform.forward, out hit, checkDistance, finalLayer))
+        {
+            if(fullyCorrect)
+            {
+                if(!hasFinalDestination && barrier == null &&  hit.collider.gameObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Close"))
+                {
+                    hasFinalDestination = true;
+                    barrier = hit.transform;
+                    Vector3 final = SO.FinalPosition;
+                    StartCoroutine(BarrierAnimation(hit.collider.GetComponent<Animator>()));
+                    agent.SetDestination(final);
+                    return;
+                }
+                else if(hit.transform != barrier)
+                {
+                    this.gameObject.SetActive(false);
+                }
+            }
+            else
+            {
+                SetNextDestination();
+            }
+        }
+    }
+    private IEnumerator BarrierAnimation(Animator anim)
+    {
+        anim.SetTrigger("openclose");
+
+        yield return new WaitForSeconds(3f);
+
+        anim.SetTrigger("openclose");
     }
     private void AvoidOtherTrucks()
     {
@@ -101,7 +146,7 @@ public class TruckView : MonoBehaviour
             }
         }
         return -1;
-    }
+    }   
     public bool CheckIfPassengersCanLeave()
     {
         for (int i = Seats.Length - 1; i >= 0; i--)
@@ -113,15 +158,33 @@ public class TruckView : MonoBehaviour
         }
         return false;
     }
-    public Colors GetTruckColor() => this.color;
-    private void OnDrawGizmos()
+    public bool IsFullWithCorrectColorPassengers()
     {
-        Vector3 origin = transform.position + transform.forward * forwardOffset + Vector3.up * upOffset;
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(origin, checkDistance);
+        // Loop through all seats
+        for (int i = 0; i < Seats.Length; i++)
+        {
+            // If any seat is empty, return false
+            if (Seats[i].CharacterView == null)
+                return false;
 
-        // Draw forward line for reference
-        Gizmos.color = Color.red;
-        Gizmos.DrawLine(origin, origin + transform.forward * checkDistance);
+            // If any passenger color does not match truck color, return false
+            if (Seats[i].CharacterView.GetColor() != color)
+                return false;
+        }
+
+        // All seats filled with correct color passengers
+        return true;
+    }
+    public Colors GetTruckColor() => this.color;
+
+    public void SetNextDestination()
+    { 
+        if (CanMoveForward())
+        {
+            int newIndex = posIndex % SO.Positions.Count;
+            Vector3 destination = SO.Positions[newIndex];
+            posIndex++;
+            agent.SetDestination(destination);
+        }
     }
 }

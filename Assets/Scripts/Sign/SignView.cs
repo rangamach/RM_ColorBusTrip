@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class SignView : MonoBehaviour
@@ -59,6 +60,8 @@ public class SignView : MonoBehaviour
         UnloadWrongColorPassengers(truck);
         LoadPassengersToTruck(truck);
 
+        truck.SetNextDestination();
+
         UpdateSignColor();
     }
 
@@ -110,6 +113,11 @@ public class SignView : MonoBehaviour
 
             truck.Seats[emptyTruckSeat].CharacterView = waiting;
             StandSlot[i].CharacterView = null;
+
+            if (!truck.fullyCorrect && truck.IsFullWithCorrectColorPassengers())
+            {
+                truck.fullyCorrect = true;
+            }
         }
     }
 
@@ -118,18 +126,14 @@ public class SignView : MonoBehaviour
     // ------------------------------------------------------
     private void AssignToSignSeat(CharacterView cv, int index)
     {
-        cv.transform.SetParent(StandSlot[index].SeatTransform);
-        cv.transform.localPosition = Vector3.zero;
-        cv.transform.localRotation = Quaternion.Euler(0, 90, 0);
-        cv.transform.localScale = Vector3.one;
+        Transform seat = StandSlot[index].SeatTransform;
+        cv.MoveToSeat(seat, 20f);
     }
 
     private void AssignToTruckSeat(CharacterView cv, TruckView truck, int index)
     {
-        cv.transform.SetParent(truck.Seats[index].SeatTransform);
-        cv.transform.localPosition = Vector3.zero;
-        cv.transform.localRotation = Quaternion.identity;
-        cv.transform.localScale = Vector3.one;
+        Transform seat = truck.Seats[index].SeatTransform;
+        cv.MoveToSeat(seat, 20f);
     }
 
     // ------------------------------------------------------

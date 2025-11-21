@@ -4,8 +4,8 @@ using UnityEngine;
 public class GameplayService
 {
     private GameplayController controller;
-    public GameplayService(GameplaySO so, TruckView Red,TruckView Yellow, TruckView Blue)
+    public GameplayService(GameplayView view, TruckView Red,TruckView Yellow, TruckView Blue)
     {
-        this.controller = new GameplayController(so.View, Red, Yellow, Blue,so.Positions);
+        this.controller = new GameplayController(view, Red, Yellow, Blue);
     }
 }
