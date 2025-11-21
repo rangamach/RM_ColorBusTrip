@@ -4,7 +4,7 @@ using UnityEngine;
 public class CharacterView : MonoBehaviour
 {
 
-    //[SerializeField] private AudioSource audio;
+    [SerializeField] private AudioSource audio;
     [SerializeField] private Colors Color;
     public Colors GetColor() => this.Color;
 
@@ -16,7 +16,7 @@ public class CharacterView : MonoBehaviour
 
     private IEnumerator MoveToSeatRoutine(Transform seat, float speed)
     {
-        //audio.Play();
+        audio.Play();
         
         // --- Capture WORLD target BEFORE parenting ---
         Vector3 targetPos = seat.position;

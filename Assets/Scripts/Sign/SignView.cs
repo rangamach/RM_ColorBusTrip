@@ -18,6 +18,7 @@ public class SignView : MonoBehaviour
     {
         PopulateInitial();
         UpdateSignColor();
+        ApplySignColor();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -55,70 +56,59 @@ public class SignView : MonoBehaviour
     // ------------------------------------------------------
     // MAIN TRIGGER LOGIC
     // ------------------------------------------------------
+
     private void HandleTruck(TruckView truck)
     {
-        UnloadWrongColorPassengers(truck);
-        LoadPassengersToTruck(truck);
-
-        truck.SetNextDestination();
-
-        UpdateSignColor();
+        StartCoroutine(ProcessTruckPassengers(truck));
     }
-
-    // ------------------------------------------------------
-    // UNLOAD WRONG-COLOR PASSENGERS FROM TRUCK ? SIGN
-    // ------------------------------------------------------
-    private void UnloadWrongColorPassengers(TruckView truck)
+    private IEnumerator ProcessTruckPassengers(TruckView truck)
     {
+        // 1?? Unload wrong-color passengers one by one
         for (int i = 0; i < truck.Seats.Length; i++)
         {
             CharacterView cv = truck.Seats[i].CharacterView;
             if (cv == null) continue;
 
-            // Only remove mismatched passengers
-            if (cv.GetColor() == truck.GetTruckColor())
-                continue;
+            if (cv.GetColor() != truck.GetTruckColor())
+            {
+                int emptyIndex = GetFirstEmptySignSeat();
+                if (emptyIndex == -1) yield break; // Sign full
 
-            int emptyIndex = GetFirstEmptySignSeat();
-            if (emptyIndex == -1) return; // Sign is full
+                AssignToSignSeat(cv, emptyIndex);
+                StandSlot[emptyIndex].CharacterView = cv;
+                truck.Seats[i].CharacterView = null;
+                UpdateSignColor();
 
-            // Move passenger to sign
-            AssignToSignSeat(cv, emptyIndex);
-
-            StandSlot[emptyIndex].CharacterView = cv;
-            truck.Seats[i].CharacterView = null;
+                yield return new WaitForSeconds(0.1f); // wait 0.5s before next passenger
+            }
         }
-    }
 
-    // ------------------------------------------------------
-    // LOAD MATCHING PASSENGERS FROM SIGN ? TRUCK
-    // ------------------------------------------------------
-    private void LoadPassengersToTruck(TruckView truck)
-    {
+        // 2?? Load matching passengers one by one
         for (int i = 0; i < StandSlot.Length; i++)
         {
             CharacterView waiting = StandSlot[i].CharacterView;
             if (waiting == null) continue;
 
-            // Only load passengers matching truck color
-            if (waiting.GetColor() != truck.GetTruckColor())
-                continue;
-
-            int emptyTruckSeat = truck.GetNextEmptySeatIndex();
-            if (emptyTruckSeat == -1)
-                return; // Truck full
-
-            // Move passenger to truck
-            AssignToTruckSeat(waiting, truck, emptyTruckSeat);
-
-            truck.Seats[emptyTruckSeat].CharacterView = waiting;
-            StandSlot[i].CharacterView = null;
-
-            if (!truck.fullyCorrect && truck.IsFullWithCorrectColorPassengers())
+            if (waiting.GetColor() == truck.GetTruckColor())
             {
-                truck.fullyCorrect = true;
+                int emptyTruckSeat = truck.GetNextEmptySeatIndex();
+                if (emptyTruckSeat == -1) yield break; // Truck full
+
+                AssignToTruckSeat(waiting, truck, emptyTruckSeat);
+                truck.Seats[emptyTruckSeat].CharacterView = waiting;
+                StandSlot[i].CharacterView = null;
+
+                if (!truck.fullyCorrect && truck.IsFullWithCorrectColorPassengers())
+                {
+                    truck.fullyCorrect = true;
+                }
+
+                UpdateSignColor();
+                yield return new WaitForSeconds(0.1f); // wait 0.5s before next passenger
             }
         }
+
+        truck.SetNextDestination();
     }
 
     // ------------------------------------------------------
@@ -152,10 +142,12 @@ public class SignView : MonoBehaviour
     // ------------------------------------------------------
     // SIGN COLOR LOGIC
     // ------------------------------------------------------
+
     private void UpdateSignColor()
     {
         Colors newColor = Colors.White;
 
+        // Find the first occupied slot
         for (int i = 0; i < StandSlot.Length; i++)
         {
             if (StandSlot[i].CharacterView != null)
@@ -165,7 +157,16 @@ public class SignView : MonoBehaviour
             }
         }
 
-        color = newColor;
+        // Only update if different
+        if (color != newColor)
+        {
+            GetComponent<Animator>().SetTrigger("color");
+            color = newColor;
+            // Don't apply yet — wait for anim event
+        }
+    }
+    public void ChangeColorAnimEvent()
+    {
         ApplySignColor();
     }
 
