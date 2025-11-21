@@ -108,6 +108,7 @@ public class SignView : MonoBehaviour
                         Debug.Log("Fully AS not found.");
                     }
                     truck.fullyCorrect = true;
+                    GameService.Instance.EventService.OnWinConfetti.InvokeEvent();
                 }
 
                 UpdateSignColor();

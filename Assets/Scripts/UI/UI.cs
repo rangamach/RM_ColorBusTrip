@@ -8,12 +8,16 @@ using UnityEngine.UI;
 
 public class UI : MonoBehaviour
 {
+    int coins = 0;
+    int numbercoinsText;
+
     [SerializeField] private Button ReplayButton;
     [SerializeField] private Button SettingsButton;
     [SerializeField] private Button XButton;
     [SerializeField] private Slider volumeSlider;
     [SerializeField] private TextMeshProUGUI volPercentageText;
     [SerializeField] private Image Tint;
+    [SerializeField] private TextMeshProUGUI coinsText;
 
     private AudioSource[] audioSourcesArray;
 
@@ -24,10 +28,14 @@ public class UI : MonoBehaviour
         XButton.onClick.AddListener(OnXButtonClicked);
         volumeSlider.onValueChanged.AddListener(OnVolumeSliderChanged);
 
+        coins = 0;
+        numbercoinsText = coins;
+        coinsText.text = numbercoinsText.ToString();
         StartCoroutine(GetAllAudioSources());
 
         
     }
+
     private IEnumerator GetAllAudioSources()
     {
         yield return new WaitForSeconds(0.2f);
@@ -69,5 +77,20 @@ public class UI : MonoBehaviour
         int percent = Mathf.RoundToInt(value * 100f);
         volPercentageText.text = percent.ToString() + "%";
     }
+    public void AddCoins()
+    {
+        coins += 15;
 
+        StartCoroutine(AddCoinsInText());
+    }
+    private IEnumerator AddCoinsInText()
+    {
+        while(numbercoinsText < coins)
+        {
+            numbercoinsText++;
+            coinsText.text = numbercoinsText.ToString();
+
+            yield return new WaitForSeconds(0.05f);
+        }
+    }
 }

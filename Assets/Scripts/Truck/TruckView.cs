@@ -85,6 +85,7 @@ public class TruckView : MonoBehaviour
                 }
                 else if(hit.transform != barrier)
                 {
+                    GameService.Instance.EventService.OnWinConfetti.InvokeEvent();
                     this.gameObject.SetActive(false);
                 }
             }
