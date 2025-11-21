@@ -100,6 +100,14 @@ public class SignView : MonoBehaviour
 
                 if (!truck.fullyCorrect && truck.IsFullWithCorrectColorPassengers())
                 {
+                    if (truck.fullyCorrectAudio != null)
+                    {
+                        truck.fullyCorrectAudio.Play();
+                    }
+                    else
+                    {
+                        Debug.Log("Fully AS not found.");
+                    }
                     truck.fullyCorrect = true;
                 }
 

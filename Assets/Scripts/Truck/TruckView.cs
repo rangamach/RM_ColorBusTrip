@@ -22,7 +22,7 @@ public class TruckView : MonoBehaviour
     [SerializeField] private LayerMask truckLayer;
     [SerializeField] private LayerMask finalLayer;
     [SerializeField] private Transform barrier;
-    //[SerializeField] public AudioSource fullyCorrectAudio;
+    [SerializeField] public AudioSource fullyCorrectAudio;
     private bool hasFinalDestination;
     public bool fullyCorrect;
     
