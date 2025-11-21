@@ -10,7 +10,7 @@ public class GameService : MonoBehaviour
     [SerializeField] private TruckView YellowTruck;
     [SerializeField] private TruckView BlueTruck;
 
-    //[SerializeField] private Image won;
+    [SerializeField] private Image Tint;
 
     private void Start()
     {
@@ -26,7 +26,7 @@ public class GameService : MonoBehaviour
     }
     private void CreateServices()
     {
-        gameplayService = new GameplayService(gameplayView,RedTruck,YellowTruck,BlueTruck);
+        gameplayService = new GameplayService(gameplayView,RedTruck,YellowTruck,BlueTruck,Tint);
     }
 
 }

@@ -27,7 +27,6 @@ public class SignView : MonoBehaviour
 
         if (truck != null)
         {
-            Debug.Log("Truck entered sign trigger.");
             HandleTruck(truck);
         }
     }

@@ -1,9 +1,11 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class GameplayView : MonoBehaviour
 {
     private GameplayController gameplayController;
+    private Image Tint;
     private ClickInputActions inputAction;
 
     private void Awake()
@@ -48,12 +50,11 @@ public class GameplayView : MonoBehaviour
             TruckView truck = hit.collider.GetComponent<TruckView>();
             if (truck == null)
             {
-                Debug.Log("Clicked non-truck object");
                 return;
             }
             else
             {
-                if (truck.posIndex == 0)
+                if (truck.posIndex == 0 && !Tint.gameObject.activeInHierarchy)
                 {
                     truck.SetNextDestination();
                 }
@@ -65,4 +66,5 @@ public class GameplayView : MonoBehaviour
     {
         gameplayController = controller;
     }
+    public void SetTint(Image tint) => this.Tint = tint;
 }

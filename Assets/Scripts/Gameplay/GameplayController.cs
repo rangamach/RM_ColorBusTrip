@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameplayController
 {
@@ -9,7 +10,7 @@ public class GameplayController
     private TruckView Yellow;
     private TruckView Blue;
 
-    public GameplayController(GameplayView view, TruckView red, TruckView yellow, TruckView blue)
+    public GameplayController(GameplayView view, TruckView red, TruckView yellow, TruckView blue,Image tint)
     {
         this.Red = red;
         this.Yellow = yellow;
@@ -18,5 +19,6 @@ public class GameplayController
         this.view = Object.Instantiate(view);
 
         this.view.SetController(this);
+        this.view.SetTint(tint);
     }
 }
