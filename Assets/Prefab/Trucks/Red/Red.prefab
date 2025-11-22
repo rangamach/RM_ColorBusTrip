@@ -590,8 +590,8 @@ MonoBehaviour:
   finalLayer:
     serializedVersion: 2
     m_Bits: 128
-  barrier: {fileID: 0}
   fullyCorrectAudio: {fileID: 6301697574251620530}
+  click: {fileID: 8300000, guid: 1855d1125cea867449c9ffeb097e4205, type: 3}
   fullyCorrect: 0
   posIndex: 0
 --- !u!1 &6495361200094935136

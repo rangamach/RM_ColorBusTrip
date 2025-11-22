@@ -154,6 +154,11 @@ public class SignView : MonoBehaviour
 
     private void AssignToTruckSeat(CharacterView cv, TruckView truck, int index)
     {
+        if (GameService.Instance.UI.VibrationToggle())
+        {
+            Handheld.Vibrate();
+        }
+
         Transform seat = truck.Seats[index].SeatTransform;
         cv.MoveToSeat(seat, 20f);
     }

@@ -18,12 +18,10 @@ public class GameService : GenericMonoSingleton<GameService>
     protected override void Awake()
     {
         base.Awake();
-    }
 
-    private void Start()
-    {
         CreateServices();
     }
+
     private void CreateServices()
     {
         EventService = new EventService();

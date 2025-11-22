@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -63,7 +62,7 @@ public class GameplayView : MonoBehaviour
             }
             else
             {
-                if (truck.posIndex == 0 && !Tint.gameObject.activeInHierarchy)
+                if (truck.posIndex == 0 && !Tint.gameObject.activeInHierarchy && GameService.Instance.UI.numberoftrucks < 5)
                 {
                     truck.SetNextDestination();
                 }
@@ -84,9 +83,7 @@ public class GameplayView : MonoBehaviour
             }
 
             confettiPlayed = true;
-            Debug.Log("Confetti...");
             GameService.Instance.EventService.OnConfetti.InvokeEvent();
-            //Play confetti here...
         }
         else
         {
@@ -100,19 +97,10 @@ public class GameplayView : MonoBehaviour
             }
             if (trucksinactive == trucks.Length - 1)
             {
-                Debug.Log("Win UI...");
                 GameService.Instance.UI.AddCoins();
-                //Show win UI here...
             }
         }
     }
-    private IEnumerator WaitsForTruckToDisable()
-    {
-        yield return new WaitForSeconds(0.1f);
-
-
-    }
-
     public void SetController(GameplayController controller)
     {
         gameplayController = controller;

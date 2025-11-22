@@ -27,6 +27,7 @@ public class TruckView : MonoBehaviour
     [SerializeField] private LayerMask finalLayer;
     private Transform barrier;
     [SerializeField] public AudioSource fullyCorrectAudio;
+    [SerializeField] private AudioClip click;
     private bool hasFinalDestination;
     public bool fullyCorrect;
     
@@ -108,6 +109,7 @@ public class TruckView : MonoBehaviour
                 else if(hit.transform != barrier)
                 {
                     GameService.Instance.EventService.OnWinConfetti.InvokeEvent();
+                    GameService.Instance.UI.SetNumberofTrucksText(false);
                     this.gameObject.SetActive(false);
                 }
             }
@@ -208,6 +210,11 @@ public class TruckView : MonoBehaviour
     { 
         if (CanMoveForward())
         {
+            if(posIndex == 0)
+            {
+                fullyCorrectAudio.PlayOneShot(click);
+                GameService.Instance.UI.SetNumberofTrucksText(true);
+            }
             int newIndex = posIndex % SO.Positions.Count;
             Vector3 destination = SO.Positions[newIndex];
             posIndex++;
