@@ -85,6 +85,7 @@ public class GameplayView : MonoBehaviour
 
             confettiPlayed = true;
             Debug.Log("Confetti...");
+            GameService.Instance.EventService.OnConfetti.InvokeEvent();
             //Play confetti here...
         }
         else

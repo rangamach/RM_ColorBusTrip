@@ -12,13 +12,32 @@ public class SignView : MonoBehaviour
     [SerializeField] private Material red;
     [SerializeField] private Material white;
 
+    [SerializeField] private ParticleSystem confetti;
+
+    private SeatSlot[] initialStandSlot;
+    private Material initialMaterial;
+
     private Colors color = Colors.White;
 
+    private void Awake()
+    {
+        initialStandSlot = new SeatSlot[StandSlot.Length];
+
+        for(int i =0;i<StandSlot.Length;i++)
+        {
+            initialStandSlot[i] = new SeatSlot();
+            initialStandSlot[i].SeatTransform = StandSlot[i].SeatTransform;
+            initialStandSlot[i].CharacterView = StandSlot[i].CharacterView;
+        }
+    }
     private void Start()
     {
         PopulateInitial();
         UpdateSignColor();
         ApplySignColor();
+
+        GameService.Instance.EventService.OnRestart.AddListener(OnRestart);
+        GameService.Instance.EventService.OnConfetti.AddListener(PlayConfetti);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -41,13 +60,18 @@ public class SignView : MonoBehaviour
             if (StandSlot[i].CharacterView == null)
                 continue;
 
-            CharacterView original = StandSlot[i].CharacterView;
+            // Instantiate runtime copy
+            CharacterView character = Instantiate(StandSlot[i].CharacterView);
 
-            // instantiate copy
-            CharacterView character = Instantiate(original);
-            AssignToSignSeat(character, i);
+            // Parent to seat
+            character.transform.SetParent(StandSlot[i].SeatTransform);
 
-            // clean prefab reference
+            // Reset local transform
+            character.transform.localPosition = Vector3.zero;
+            character.transform.localRotation = Quaternion.identity;
+            character.transform.localScale = Vector3.one;
+
+            // Replace reference with runtime instance
             StandSlot[i].CharacterView = character;
         }
     }
@@ -192,4 +216,48 @@ public class SignView : MonoBehaviour
                 head.material = blue; break;
         }
     }
+
+    public void OnRestart()
+    {
+        // Destroy existing characters
+        for (int i = 0; i < StandSlot.Length; i++)
+        {
+            if (StandSlot[i].CharacterView != null)
+            {
+                Destroy(StandSlot[i].CharacterView.gameObject);
+            }
+        }
+
+        // Reset StandSlot array
+        StandSlot = new SeatSlot[initialStandSlot.Length];
+
+        for (int i = 0; i < initialStandSlot.Length; i++)
+        {
+            StandSlot[i] = new SeatSlot();
+            StandSlot[i].SeatTransform = initialStandSlot[i].SeatTransform;
+            StandSlot[i].CharacterView = initialStandSlot[i].CharacterView;
+
+            if (StandSlot[i].CharacterView != null)
+            {
+                // Instantiate a fresh runtime copy
+                CharacterView newChar = Instantiate(StandSlot[i].CharacterView);
+
+                // Parent to seat
+                newChar.transform.SetParent(StandSlot[i].SeatTransform);
+
+                // Reset local transform
+                newChar.transform.localPosition = Vector3.zero;
+                newChar.transform.localRotation = Quaternion.identity;
+                newChar.transform.localScale = Vector3.one;
+
+                // Replace reference with new instance
+                StandSlot[i].CharacterView = newChar;
+            }
+        }
+
+        // Reset sign color
+        color = Colors.White; // optional, ensures default
+        UpdateSignColor();
+    }
+    private void PlayConfetti() => confetti.Play();
 }

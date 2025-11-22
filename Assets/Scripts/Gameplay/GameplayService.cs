@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 public class GameplayService
@@ -11,4 +12,7 @@ public class GameplayService
         //this.controller = new GameplayController(view, Red, Yellow, Blue,Tint);
         this.controller = new GameplayController(view, trucks,Tint);
     }
+
+    public int GetCurrentCoin() => controller.GetCurrentCoin();
+    public void SetCurrentCoin(int coin) => controller.SetCurrentCoin(coin);
 }

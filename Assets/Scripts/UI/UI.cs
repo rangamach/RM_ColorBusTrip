@@ -4,11 +4,11 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
+using UnityEngine.SocialPlatforms.GameCenter;
 using UnityEngine.UI;
 
 public class UI : MonoBehaviour
 {
-    int coins = 0;
     int numbercoinsText;
 
     [SerializeField] private Button ReplayButton;
@@ -20,7 +20,6 @@ public class UI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI coinsText;
 
     private AudioSource[] audioSourcesArray;
-
     private void Start()
     {
         ReplayButton.onClick.AddListener(OnClickReplayButton);
@@ -28,12 +27,11 @@ public class UI : MonoBehaviour
         XButton.onClick.AddListener(OnXButtonClicked);
         volumeSlider.onValueChanged.AddListener(OnVolumeSliderChanged);
 
-        coins = 0;
-        numbercoinsText = coins;
+        numbercoinsText = 0;
         coinsText.text = numbercoinsText.ToString();
         StartCoroutine(GetAllAudioSources());
 
-        
+        GameService.Instance.EventService.OnRestart.AddListener(OnRestart);
     }
 
     private IEnumerator GetAllAudioSources()
@@ -45,7 +43,7 @@ public class UI : MonoBehaviour
 
     private void OnClickReplayButton()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        GameService.Instance.EventService.OnRestart.InvokeEvent();
     }
     private void OnClickSettingsButton()
     {
@@ -57,20 +55,18 @@ public class UI : MonoBehaviour
     }
     private void OnXButtonClicked()
     {
-        float vol = volumeSlider.value;
-        foreach (var source in audioSourcesArray)
-        {
-            if(source != null)
-            {
-                source.volume = volumeSlider.value;
-            }
-        }
-
         Tint.gameObject.SetActive(false);
     }
     private void OnVolumeSliderChanged(float value)
     {
         UpdateVolumeText(value);
+        foreach (var source in audioSourcesArray)
+        {
+            if (source != null)
+            {
+                source.volume = volumeSlider.value;
+            }
+        }
     }
     private void UpdateVolumeText(float value)
     {
@@ -79,11 +75,11 @@ public class UI : MonoBehaviour
     }
     public void AddCoins()
     {
-        coins += 15;
+        GameService.Instance.GameplayService.SetCurrentCoin(GameService.Instance.GameplayService.GetCurrentCoin() + 15);
 
-        StartCoroutine(AddCoinsInText());
+        StartCoroutine(AddCoinsInText(GameService.Instance.GameplayService.GetCurrentCoin()));
     }
-    private IEnumerator AddCoinsInText()
+    private IEnumerator AddCoinsInText(int coins)
     {
         while(numbercoinsText < coins)
         {
@@ -92,5 +88,13 @@ public class UI : MonoBehaviour
 
             yield return new WaitForSeconds(0.05f);
         }
+    }
+    private void OnRestart()
+    {
+        GameService.Instance.GameplayService.SetCurrentCoin(0);
+        numbercoinsText = GameService.Instance.GameplayService.GetCurrentCoin();
+        coinsText.text = numbercoinsText.ToString();
+
+        Tint.gameObject.SetActive(false);
     }
 }

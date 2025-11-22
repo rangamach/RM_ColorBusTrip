@@ -5,17 +5,11 @@ using UnityEngine.UI;
 public class GameplayController
 {
     private GameplayView view;
+    private GameplayModel model;
 
-    //private TruckView Red;
-    //private TruckView Yellow;
-    //private TruckView Blue;
-
-   // public GameplayController(GameplayView view, TruckView red, TruckView yellow, TruckView blue,Image tint)
     public GameplayController(GameplayView view, TruckView[] trucks,Image tint)
     {
-        //this.Red = red;
-        //this.Yellow = yellow;
-        //this.Blue = blue;
+        model = new GameplayModel();
 
         this.view = Object.Instantiate(view);
 
@@ -23,4 +17,6 @@ public class GameplayController
         this.view.SetTruckArray(trucks);
         this.view.SetTint(tint);
     }
+    public void SetCurrentCoin(int coin) => model.SetCoin(coin);
+    public int GetCurrentCoin() => model.CurrentCoins;
 }

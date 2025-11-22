@@ -3,9 +3,9 @@ using UnityEngine;
 public class GenericMonoSingleton<T> : MonoBehaviour where T : GenericMonoSingleton<T>
 {
     private static T instance;
-    public static T Instance => instance;
+    public static T Instance { get { return instance; } }
 
-    protected void Awake()
+    protected virtual void Awake()
     {
         if(instance == null)
         {

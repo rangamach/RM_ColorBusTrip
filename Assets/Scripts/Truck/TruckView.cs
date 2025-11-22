@@ -13,6 +13,10 @@ public class SeatSlot
 public class TruckView : MonoBehaviour
 {
     [SerializeField] public SeatSlot[] Seats = new SeatSlot[16];
+    private SeatSlot[] InitialSeatSlot;
+    private Vector3 initialPos;
+    private Quaternion initialRot;
+    private Vector3 initialSca;
     [SerializeField] private Colors color;
     [SerializeField] private GameplaySO SO;
 
@@ -21,7 +25,7 @@ public class TruckView : MonoBehaviour
     [SerializeField] private float upOffset;
     [SerializeField] private LayerMask truckLayer;
     [SerializeField] private LayerMask finalLayer;
-    [SerializeField] private Transform barrier;
+    private Transform barrier;
     [SerializeField] public AudioSource fullyCorrectAudio;
     private bool hasFinalDestination;
     public bool fullyCorrect;
@@ -32,6 +36,22 @@ public class TruckView : MonoBehaviour
     [HideInInspector]
     public int posIndex;
 
+    private void Awake()
+    {
+        initialPos = transform.position;
+        initialRot = transform.rotation;
+        initialSca = transform.localScale;
+
+        InitialSeatSlot = new SeatSlot[Seats.Length];
+
+        for(int i=0;i<Seats.Length;i++)
+        {
+            InitialSeatSlot[i] = new SeatSlot();
+            InitialSeatSlot[i].SeatTransform = Seats[i].SeatTransform;
+            InitialSeatSlot[i].CharacterView = Seats[i].CharacterView;
+        }
+    }
+
     void Start()
     {
         fullyCorrect = false;
@@ -41,6 +61,8 @@ public class TruckView : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
 
         PopulateAtStart();
+
+        GameService.Instance.EventService.OnRestart.AddListener(OnRestart);
     }
     private void Update()
     {
@@ -127,12 +149,16 @@ public class TruckView : MonoBehaviour
         {
             if (Seats[i].CharacterView != null)
             {
-                CharacterView character = Instantiate(Seats[i].CharacterView, Seats[i].SeatTransform);
+                CharacterView character = Instantiate(Seats[i].CharacterView, Seats[i].SeatTransform.position, Seats[i].SeatTransform.rotation);
 
+                character.transform.SetParent(Seats[i].SeatTransform);
+
+                // Reset local transform
                 character.transform.localPosition = Vector3.zero;
+                character.transform.localRotation = Quaternion.identity;
                 character.transform.localScale = Vector3.one;
-                character.transform.rotation = Quaternion.identity;
 
+                // Replace reference with runtime instance
                 Seats[i].CharacterView = character;
             }
         }
@@ -187,5 +213,63 @@ public class TruckView : MonoBehaviour
             posIndex++;
             agent.SetDestination(destination);
         }
+    }
+
+    private void OnRestart()
+    {
+        if (!gameObject.activeInHierarchy)
+        {
+            gameObject.SetActive(true);
+        }
+
+        // Destroy old passengers and instantiate fresh ones
+        for (int i = 0; i < Seats.Length; i++)
+        {
+            if (Seats[i].CharacterView != null)
+            {
+                Destroy(Seats[i].CharacterView.gameObject);
+            }
+        }
+
+        Seats = new SeatSlot[InitialSeatSlot.Length];
+        for (int i = 0; i < InitialSeatSlot.Length; i++)
+        {
+            Seats[i] = new SeatSlot();
+            Seats[i].SeatTransform = InitialSeatSlot[i].SeatTransform;
+            Seats[i].CharacterView = InitialSeatSlot[i].CharacterView;
+
+            if (Seats[i].CharacterView != null)
+            {
+                CharacterView newChar = Instantiate(
+                    Seats[i].CharacterView,
+                    Seats[i].SeatTransform.position,
+                    Seats[i].SeatTransform.rotation
+                );
+                newChar.transform.SetParent(Seats[i].SeatTransform);
+                newChar.transform.localPosition = Vector3.zero;
+                newChar.transform.localRotation = Quaternion.identity;
+                newChar.transform.localScale = Vector3.one;
+
+                Seats[i].CharacterView = newChar;
+            }
+        }
+
+        // Reset truck logic
+        fullyCorrect = false;
+        hasFinalDestination = false;
+        barrier = null;
+        posIndex = 0;
+
+        // Reset transform first
+        transform.position = initialPos;
+        transform.rotation = initialRot;
+        transform.localScale = initialSca;
+
+        // Reset agent AFTER transform reset
+        agent.ResetPath();
+        agent.enabled = false; // Force NavMeshAgent to reinitialize
+        agent.enabled = true;
+
+        agent.updateRotation = true;
     }
 }

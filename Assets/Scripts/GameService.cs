@@ -15,7 +15,7 @@ public class GameService : GenericMonoSingleton<GameService>
 
     [SerializeField] private Image Tint;
 
-    private void Awake()
+    protected override void Awake()
     {
         base.Awake();
     }
